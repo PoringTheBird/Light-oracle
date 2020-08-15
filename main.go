@@ -7,7 +7,10 @@ import (
 )
 
 func main() {
-	discordGateway := Discord.GatewayClient{GatewayUrl: os.Getenv("DISCORD_GATEWAY_URL")}
+	discordGateway := Discord.GatewayClient{
+		GatewayUrl: os.Getenv("DISCORD_GATEWAY_URL"),
+		DiscordToken: os.Getenv("DISCORD_TOKEN"),
+	}
 	//discordApi := Discord.ApiClient{os.Getenv("DISCORD_API_URL"), os.Getenv("DISCORD_TOKEN")}
 	//
 	//message, err := discordApi.SendMessage("Some message","743173612843958332")

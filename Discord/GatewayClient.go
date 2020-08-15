@@ -6,13 +6,17 @@ import (
 	"github.com/gorilla/websocket"
 	"log"
 	"main/Discord/Entities/Gateway"
+	"runtime"
 	"time"
 )
+
+const clientName = "Light-oracle"
 
 var connectionLostError = errors.New("Connection lost")
 
 type GatewayClient struct {
 	GatewayUrl string
+	DiscordToken string
 
 	connection *websocket.Conn
 	heartbeat chan struct{}
@@ -38,6 +42,8 @@ func (ws *GatewayClient) listenToSocket() {
 		ws.onMessageReceived(msg)
 	}
 }
+
+// Heartbeat
 
 func (ws *GatewayClient) startHearthbeat(interval float64) {
 	log.Println("Heartbeat in ", interval, " ms")
@@ -68,6 +74,12 @@ func (ws *GatewayClient) startHearthbeat(interval float64) {
 	}()
 }
 
+func (ws *GatewayClient) stopHeartbeat() {
+	close(ws.heartbeat)
+}
+
+// Service messages
+
 func (ws *GatewayClient) sendHearthbeat() error {
 	if !ws.heartbeatConfirmed {
 		return connectionLostError
@@ -79,8 +91,12 @@ func (ws *GatewayClient) sendHearthbeat() error {
 	return ws.SendMessage(message)
 }
 
-func (ws *GatewayClient) stopHeartbeat() {
-	close(ws.heartbeat)
+func (ws *GatewayClient) sendIdentity() error {
+	identityProp := Gateway.IdentityPayloadProperties{Os: runtime.GOOS, Browser: clientName, Device: clientName}
+	identityPayload := Gateway.IdentityPayload{Token: ws.DiscordToken, Properties: identityProp}
+
+	message := Gateway.Message{Op: 2, D: identityPayload}
+	return ws.SendMessage(message)
 }
 
 // Actions
@@ -89,12 +105,22 @@ func (ws *GatewayClient) Connect() error {
 	conn, _, err := websocket.DefaultDialer.Dial(ws.GatewayUrl, nil)
 
 	if err != nil {
+		ws.Disconnect()
 		return err
 	}
 
 	log.Println("Connected")
 
 	ws.connection = conn
+
+	err = ws.sendIdentity()
+
+	if err != nil {
+		log.Fatal("Failed to send identity: ", err)
+		ws.Disconnect()
+		return err
+	}
+
 	ws.listenToSocket()
 
 	return nil
