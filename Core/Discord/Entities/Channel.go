@@ -1,6 +1,6 @@
 package Entities
 
 type Channel struct {
-	Id string
-	Name string
+	Id 		string
+	Name 	string
 }

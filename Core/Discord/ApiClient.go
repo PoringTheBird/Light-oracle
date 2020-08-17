@@ -3,13 +3,13 @@ package Discord
 import (
 	"bytes"
 	"encoding/json"
+	"errors"
 	"fmt"
 	"io"
 	"io/ioutil"
-	"main/Discord/Entities"
+	"main/Core/Discord/Entities"
 	"net/http"
 	"sort"
-	"errors"
 )
 
 type ApiClient struct {

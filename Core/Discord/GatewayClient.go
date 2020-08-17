@@ -5,11 +5,12 @@ import (
 	"errors"
 	"github.com/gorilla/websocket"
 	"log"
-	"main/Discord/Entities/Gateway"
+	"main/Core/Discord/Entities/Gateway"
 	"runtime"
 	"time"
 )
 
+const msgTransportLogEnabled = false	// Show Send/Receive message logs
 const clientName = "Light-oracle"
 
 var connectionLostError = errors.New("Connection lost")
@@ -17,6 +18,10 @@ var connectionLostError = errors.New("Connection lost")
 type GatewayClient struct {
 	GatewayUrl string
 	DiscordToken string
+
+	ContentMessageHandler Gateway.ContentMessageHandler
+
+	IsIdentified bool
 
 	connection *websocket.Conn
 	heartbeat chan struct{}
@@ -102,6 +107,8 @@ func (ws *GatewayClient) sendIdentity() error {
 // Actions
 
 func (ws *GatewayClient) Connect() error {
+	ws.IsIdentified = false
+
 	conn, _, err := websocket.DefaultDialer.Dial(ws.GatewayUrl, nil)
 
 	if err != nil {
@@ -127,6 +134,8 @@ func (ws *GatewayClient) Connect() error {
 }
 
 func (ws *GatewayClient) Disconnect() {
+	ws.IsIdentified = false
+
 	ws.stopHeartbeat()
 	ws.connection.Close()
 
@@ -138,7 +147,7 @@ func (ws *GatewayClient) Disconnect() {
 
 func (ws *GatewayClient) SendMessage(message Gateway.Message) error {
 	data, _ := json.Marshal(message)
-	log.Println("Sending message: ", string(data))
+	ws.logTransportEvent("Sending message: ", string(data))
 
 	return ws.connection.WriteJSON(message)
 }
@@ -147,18 +156,29 @@ func (ws *GatewayClient) SendMessage(message Gateway.Message) error {
 
 func (ws *GatewayClient) onMessageReceived(message *Gateway.Message) {
 	data, _ := json.Marshal(message)
-	log.Println("Received message: ", string(data))
+	ws.logTransportEvent("Received message: ", string(data))
 
 	ws.lastSequenceId = message.S
 
 	switch message.Op {
+	case 0:
+		ws.ContentMessageHandler.HandleMessage(message)
 	case 1:
 		msg := Gateway.Message{Op: 11}
 		ws.SendMessage(msg)
+	case 6:
+		ws.IsIdentified = false
 	case 10:
 		params := message.D.(map[string]interface{})
 		ws.startHearthbeat(params["heartbeat_interval"].(float64))
 	case 11:
 		ws.heartbeatConfirmed = true
 	}
+}
+
+// Logs
+
+func (ws *GatewayClient) logTransportEvent(v ...interface{}) {
+	if !msgTransportLogEnabled { return }
+	log.Println(v)
 }

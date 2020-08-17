@@ -5,6 +5,8 @@
 *.so
 *.dylib
 
+.idea/workspace.xml
+
 main
 
 # Test binary, built with `go test -c`
