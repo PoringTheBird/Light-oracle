@@ -6,12 +6,14 @@ import (
 	"main/Core/Discord"
 	"main/Core/Discord/Entities"
 	"main/Core/Discord/Entities/Gateway"
+	"main/Core/LightChat"
 	"os"
 )
 
 type Bot struct {
 	discordApi Discord.ApiClient
 	discordGateway Discord.GatewayClient
+	lightChatContainer LightChat.HistoryContainer
 
 	discordStateDetails *Gateway.ReadyEventPayload
 }
@@ -37,6 +39,8 @@ func (bot *Bot) setupClients() {
 		DiscordToken: os.Getenv("DISCORD_TOKEN"),
 		ContentMessageHandler: bot,
 	}
+
+	bot.lightChatContainer = LightChat.HistoryContainer{SiteUrl: os.Getenv("LIGHT_CHAT_URL") }
 }
 
 // Actions
@@ -61,14 +65,6 @@ func (bot *Bot) HandleMessage(message *Gateway.Message) bool {
 
 		bot.discordStateDetails = payload
 		bot.discordGateway.IsIdentified = true
-
-		msg, err := bot.sendMessageToDiscord("Hello!", "743736138258448474")
-
-		if err != nil {
-			log.Fatal("Error: ", err)
-		} else {
-			log.Println("Message: ", msg)
-		}
 
 		return true
 	default:
