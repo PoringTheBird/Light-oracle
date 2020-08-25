@@ -2,6 +2,7 @@ package Core
 
 import (
 	"errors"
+	"fmt"
 	"log"
 	"main/Core/Discord"
 	"main/Core/Discord/Entities"
@@ -22,6 +23,7 @@ type Bot struct {
 
 func (bot *Bot) Start() error {
 	bot.setupClients()
+	bot.lightChatContainer.StartChatHistoryObserving(300)
 
 	return bot.discordGateway.Connect()
 }
@@ -40,7 +42,7 @@ func (bot *Bot) setupClients() {
 		ContentMessageHandler: bot,
 	}
 
-	bot.lightChatContainer = LightChat.HistoryContainer{SiteUrl: os.Getenv("LIGHT_CHAT_URL") }
+	bot.lightChatContainer = LightChat.HistoryContainer{SiteUrl: os.Getenv("LIGHT_CHAT_URL"), LoadHandler: bot }
 }
 
 // Actions
@@ -70,4 +72,16 @@ func (bot *Bot) HandleMessage(message *Gateway.Message) bool {
 	default:
 		return false
 	}
+}
+
+// MessageLoadHandler
+
+func (bot *Bot) OnNewMessagesLoaded(messages []LightChat.Message) {
+	var newMessages = ""
+
+	for _, msg := range messages {
+		newMessages += fmt.Sprintf("%s: %s", msg.SenderName, msg.Text)
+	}
+
+	bot.discordApi.SendMessage(newMessages, "743173612843958332")
 }
