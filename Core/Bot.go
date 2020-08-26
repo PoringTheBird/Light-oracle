@@ -11,6 +11,8 @@ import (
 	"os"
 )
 
+const chatLoadInterval = 120.0
+
 type Bot struct {
 	discordApi Discord.ApiClient
 	discordGateway Discord.GatewayClient
@@ -23,7 +25,7 @@ type Bot struct {
 
 func (bot *Bot) Start() error {
 	bot.setupClients()
-	bot.lightChatContainer.StartChatHistoryObserving(300)
+	bot.lightChatContainer.StartChatHistoryObserving(chatLoadInterval)
 
 	return bot.discordGateway.Connect()
 }
