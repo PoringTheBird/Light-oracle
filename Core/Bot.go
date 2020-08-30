@@ -79,11 +79,13 @@ func (bot *Bot) HandleMessage(message *Gateway.Message) bool {
 // MessageLoadHandler
 
 func (bot *Bot) OnNewMessagesLoaded(messages []LightChat.Message) {
-	var newMessages = ""
+	var newMessages = "```swift\n"
 
 	for _, msg := range messages {
 		newMessages += fmt.Sprintf("%s: %s", msg.SenderName, msg.Text)
 	}
+
+	newMessages += "\n```"
 
 	bot.discordApi.SendMessage(newMessages, "743173612843958332")
 }
