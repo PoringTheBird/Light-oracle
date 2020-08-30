@@ -9,11 +9,22 @@ import (
 )
 
 func main() {
+	go startSocket()
+
 	bot := Core.Bot{}
 	err := bot.Start()
 
 	if err != nil {
 		log.Fatal(err)
+		return
+	}
+}
+
+func startSocket() {
+	err := listenPort()
+	if err != nil {
+		log.Println("Failed to listen to port: ", err)
+		return
 	}
 }
 
@@ -24,6 +35,8 @@ func listenPort() error {
 		return err
 	}
 
+	log.Println("Start listening of ", host)
+
 	for {
 		conn, err := ln.Accept()
 		if err != nil {
@@ -32,6 +45,9 @@ func listenPort() error {
 
 		go handleConnection(conn)
 	}
+
+	ln.Close()
+	return nil
 }
 
 func handleConnection(conn net.Conn) {
