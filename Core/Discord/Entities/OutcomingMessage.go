@@ -3,7 +3,7 @@ package Entities
 type OutcomingMessage struct {
 	Content string					`json:"content"`
 	Tts 	bool					`json:"tts"`
-	Embed	OutcomingMessageEmbed	`json:"embed"`
+	Embed	*OutcomingMessageEmbed	`json:"embed"`
 }
 
 type OutcomingMessageEmbed struct {
