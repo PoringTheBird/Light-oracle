@@ -58,13 +58,14 @@ func (container *HistoryContainer) LoadHistory() (*[]Message, error) {
 }
 
 func (container *HistoryContainer) StartChatHistoryObserving(interval int) {
-	historyReload := time.NewTicker(time.Duration(interval) * time.Millisecond)
+	historyReload := time.NewTicker(time.Duration(interval) * time.Second)
 	container.historyObserving = make(chan struct{})
 
 	go func() {
 		for {
 			select {
 			case <- historyReload.C:
+				fmt.Println("Reload history")
 				err := container.sendNewMessages()
 
 				if err != nil {
