@@ -9,15 +9,8 @@ import (
 )
 
 func main() {
-	go startSocket()
-
-	bot := Core.Bot{}
-	err := bot.Start()
-
-	if err != nil {
-		log.Fatal(err)
-		return
-	}
+	go startBot()
+	startSocket()
 }
 
 func startSocket() {
@@ -28,8 +21,18 @@ func startSocket() {
 	}
 }
 
+func startBot() {
+	bot := Core.Bot{}
+	err := bot.Start()
+
+	if err != nil {
+		log.Fatal(err)
+		return
+	}
+}
+
 func listenPort() error {
-	host := fmt.Sprintf("localhost:%s", os.Getenv("PORT"))
+	host := fmt.Sprintf("0.0.0.0:%s", os.Getenv("PORT"))
 	ln, err := net.Listen("tcp", host)
 	if err != nil {
 		return err
