@@ -51,8 +51,7 @@ func (api ApiClient) LoadMessages(channelId string) (*[]Entities.IncomingMessage
 }
 
 func (api ApiClient) SendMessage(text string, channelId string) (*Entities.IncomingMessage, error) {
-	embed := Entities.OutcomingMessageEmbed{Title: "Hello, Embed!", Description: "This is an embedded message."}
-	outcomingMessage := Entities.OutcomingMessage{Content: text, Tts: false, Embed: embed}
+	outcomingMessage := Entities.OutcomingMessage{Content: text, Tts: false, Embed: nil}
 	sentMessage := new (Entities.IncomingMessage)
 
 	path := fmt.Sprintf("/channels/%s/messages", channelId)

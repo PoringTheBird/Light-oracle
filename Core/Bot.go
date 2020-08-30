@@ -11,7 +11,7 @@ import (
 	"os"
 )
 
-const chatLoadInterval = 120.0
+const chatLoadInterval = 600.0
 
 type Bot struct {
 	discordApi Discord.ApiClient
