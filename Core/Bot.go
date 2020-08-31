@@ -9,6 +9,7 @@ import (
 	"main/Core/Discord/Entities/Gateway"
 	"main/Core/LightChat"
 	"os"
+	"strings"
 )
 
 const chatLoadInterval = 600.0
@@ -26,6 +27,11 @@ type Bot struct {
 func (bot *Bot) Start() error {
 	bot.setupClients()
 	bot.lightChatContainer.StartChatHistoryObserving(chatLoadInterval)
+
+	testMsgs := []LightChat.Message{}
+	testMsgs = append(testMsgs, LightChat.Message{SenderName: "yuryol", Text: "я встал,у меня пол первого,работать начал =З"})
+
+	bot.OnNewMessagesLoaded(testMsgs)
 
 	return bot.discordGateway.Connect()
 }
@@ -82,7 +88,7 @@ func (bot *Bot) OnNewMessagesLoaded(messages []LightChat.Message) {
 	var newMessages = "```swift\n"
 
 	for _, msg := range messages {
-		newMessages += fmt.Sprintf("%s: %s", msg.SenderName, msg.Text)
+		newMessages += fmt.Sprintf("%s: %s", strings.Title(msg.SenderName), msg.Text)
 	}
 
 	newMessages += "\n```"
