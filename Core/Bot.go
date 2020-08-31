@@ -83,10 +83,10 @@ func (bot *Bot) OnNewMessagesLoaded(messages []LightChat.Message) {
 	var newMessages = "```swift\n"
 
 	for _, msg := range messages {
-		newMessages += fmt.Sprintf("%s: %s", strings.Title(msg.SenderName), msg.Text)
+		newMessages += fmt.Sprintf("%s: %s\n", strings.Title(msg.SenderName), msg.Text)
 	}
 
-	newMessages += "\n```"
+	newMessages += "```"
 
 	bot.discordApi.SendMessage(newMessages, "743173612843958332")
 }
