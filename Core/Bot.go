@@ -28,11 +28,6 @@ func (bot *Bot) Start() error {
 	bot.setupClients()
 	bot.lightChatContainer.StartChatHistoryObserving(chatLoadInterval)
 
-	testMsgs := []LightChat.Message{}
-	testMsgs = append(testMsgs, LightChat.Message{SenderName: "yuryol", Text: "я встал,у меня пол первого,работать начал =З"})
-
-	bot.OnNewMessagesLoaded(testMsgs)
-
 	return bot.discordGateway.Connect()
 }
 
