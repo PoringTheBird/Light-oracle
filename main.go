@@ -5,12 +5,23 @@ import (
 	"log"
 	"main/Core"
 	"net"
+	"net/http"
 	"os"
 )
 
 func main() {
 	go startBot()
-	startSocket()
+	go startSocket()
+	startServerPage()
+}
+
+func startServerPage() {
+	http.HandleFunc("/", onHomePageRequest)
+	http.ListenAndServe(":8080", nil)
+}
+
+func onHomePageRequest(res http.ResponseWriter, req *http.Request) {
+	fmt.Fprintf(res, "Home page")
 }
 
 func startSocket() {
