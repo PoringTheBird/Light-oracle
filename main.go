@@ -11,13 +11,14 @@ import (
 
 func main() {
 	go startBot()
-	go startSocket()
 	startServerPage()
 }
 
 func startServerPage() {
+	addr := fmt.Sprintf(":%s", os.Getenv("PORT"))
+
 	http.HandleFunc("/", onHomePageRequest)
-	http.ListenAndServe(":8080", nil)
+	http.ListenAndServe(addr, nil)
 }
 
 func onHomePageRequest(res http.ResponseWriter, req *http.Request) {
