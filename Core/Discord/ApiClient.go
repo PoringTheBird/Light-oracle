@@ -10,6 +10,7 @@ import (
 	"main/Core/Discord/Entities"
 	"net/http"
 	"sort"
+	"html"
 )
 
 type ApiClient struct {
@@ -51,7 +52,8 @@ func (api ApiClient) LoadMessages(channelId string) (*[]Entities.IncomingMessage
 }
 
 func (api ApiClient) SendMessage(text string, channelId string) (*Entities.IncomingMessage, error) {
-	outcomingMessage := Entities.OutcomingMessage{Content: text, Tts: false, Embed: nil}
+	unescapedText = html.UnescapeString(text)
+	outcomingMessage := Entities.OutcomingMessage{Content: unescapedText, Tts: false, Embed: nil}
 	sentMessage := new (Entities.IncomingMessage)
 
 	path := fmt.Sprintf("/channels/%s/messages", channelId)
