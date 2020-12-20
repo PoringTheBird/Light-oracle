@@ -52,7 +52,7 @@ func (api ApiClient) LoadMessages(channelId string) (*[]Entities.IncomingMessage
 }
 
 func (api ApiClient) SendMessage(text string, channelId string) (*Entities.IncomingMessage, error) {
-	unescapedText = html.UnescapeString(text)
+	unescapedText := html.UnescapeString(text)
 	outcomingMessage := Entities.OutcomingMessage{Content: unescapedText, Tts: false, Embed: nil}
 	sentMessage := new (Entities.IncomingMessage)
 
