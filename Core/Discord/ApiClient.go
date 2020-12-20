@@ -9,8 +9,11 @@ import (
 	"io/ioutil"
 	"main/Core/Discord/Entities"
 	"net/http"
+	"net/url"
 	"sort"
 	"html"
+	"regexp"
+	"strings"
 )
 
 type ApiClient struct {
@@ -52,8 +55,15 @@ func (api ApiClient) LoadMessages(channelId string) (*[]Entities.IncomingMessage
 }
 
 func (api ApiClient) SendMessage(text string, channelId string) (*Entities.IncomingMessage, error) {
-	unescapedText := html.UnescapeString(text)
-	outcomingMessage := Entities.OutcomingMessage{Content: unescapedText, Tts: false, Embed: nil}
+	adjustedText, regexErr := api.fixLinksInText(text)
+	adjustedText = html.UnescapeString(adjustedText)
+
+	if regexErr != nil {
+		fmt.Println("Error regex: ", regexErr)
+		return nil, regexErr
+	}
+
+	outcomingMessage := Entities.OutcomingMessage{Content: adjustedText, Tts: false, Embed: nil}
 	sentMessage := new (Entities.IncomingMessage)
 
 	path := fmt.Sprintf("/channels/%s/messages", channelId)
@@ -64,6 +74,27 @@ func (api ApiClient) SendMessage(text string, channelId string) (*Entities.Incom
 	}
 
 	return sentMessage, nil
+}
+
+func (api ApiClient) fixLinksInText(text string) (string, error) {
+	
+	fmt.Println("Original: ", text)
+	regex, err := regexp.Compile("<a\\shref=\"([^\"]+)\">&laquo;link&raquo;</a>")
+	if err != nil { return text, err}
+
+	submatches := regex.FindAllStringSubmatch(text, -1)
+
+	fixedText := text
+
+	for _, match := range submatches{
+		fmt.Println("Replace ", match[0], " with ", match[1])
+		fixedText = strings.Replace(fixedText, match[0], match[1], -1)
+	}
+
+	unescapedText, err := url.QueryUnescape(fixedText)
+	if err != nil { return fixedText, err}
+
+	return unescapedText, nil
 }
 
 // Api Core
